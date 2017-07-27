@@ -227,7 +227,7 @@ Method.prototype._confirmTransaction = function (defer, result, payload, extraFo
 
 
     // fire "receipt" and confirmation events and resolve after
-    var checkConfirmation = function (err, block, sub, existingReceipt) {
+    var checkConfirmation = function (err, blockHeader, sub, existingReceipt) {
         if (!err) {
             // create fake unsubscribe
             if (!sub) {
@@ -381,6 +381,16 @@ Method.prototype._confirmTransaction = function (defer, result, payload, extraFo
       }
   }.bind(this);
 
+  // start watching for confirmation depending on the support features of the provider
+  var startWatching = function() {
+      // if provider allows PUB/SUB
+      if (_.isFunction(this.requestManager.provider.on)) {
+          method._ethereumCall.subscribe('newBlockHeaders', checkConfirmation);
+      } else {
+          intervalId = setInterval(checkConfirmation, 1000);
+      }
+  }.bind(this);
+
   // first check if we already have a confirmed transaction
   method._ethereumCall.getTransactionReceipt(result)
   .then(function(receipt) {
@@ -458,7 +468,6 @@ Method.prototype.buildCall = function() {
 
             // return PROMIEVENT
             } else {
-
                 defer.eventEmitter.emit('transactionHash', result);
 
                 method._confirmTransaction(defer, result, payload, extraFormatters);

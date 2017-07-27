@@ -366,14 +366,14 @@ var methods = function () {
         type: 'eth',
         subscriptions: {
             'newBlockHeaders': {
-                // TODO change name on RPC side?
+                // TODO rename on RPC side?
                 subscriptionName: 'newHeads', // replace subscription with this name
                 params: 0,
                 outputFormatter: formatters.outputBlockFormatter
             },
             'pendingTransactions': {
+                subscriptionName: 'newPendingTransactions', // replace subscription with this name
                 params: 0
-                // outputFormatter: formatters.outputTransactionFormatter // returns only hash???
             },
             'logs': {
                 params: 1,
